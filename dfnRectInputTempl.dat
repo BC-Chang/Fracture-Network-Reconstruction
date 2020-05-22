@@ -1,0 +1,22 @@
+/************************************************************************/
+/*                 RECTANGLES SPECIFIED BY COORDINATES                  */
+/************************************************************************/
+// NOTE: Coordinates must be listed in clockwise, or counterclockwise order
+//       Coordinates must be co-planar
+
+/************************************************************************/
+// Number of Rectangles Defined
+/************************************************************************/
+
+nRectangles: {nEllipses_templ}
+
+
+/************************************************************************/
+// Coordinates (4 vertice coordinates per line/One rectangle per line)
+/************************************************************************/
+// One rectangle per line
+// Format: {x1,y1,z1} {x2,y2,z2} {x3,y3,z3} {x4,y4,z4} 
+
+Coordinates:
+
+{Coordinates_templ}

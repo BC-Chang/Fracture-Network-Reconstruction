@@ -1,0 +1,29 @@
+/************************************************************************/
+/*                 ELLIPSES SPECIFIED BY COORDINATES                  */
+/************************************************************************/
+// NOTE: Coordinates must be listed in clockwise, or counterclockwise order
+//       CCoordinates must be co-planar
+
+/************************************************************************/
+// Number of Ellipses Defined
+/************************************************************************/
+
+nEllipses: {nEllipses_templ}
+
+
+/************************************************************************/
+// Number of nodes for all ellipses
+/************************************************************************/
+
+nNodes: {nNodes_templ}
+
+
+/************************************************************************/
+// Coordinates (4 vertice coordinates per line/One rectangle per line)
+/************************************************************************/
+// One Ellipse per line (White space and new lines should not matter)
+// Format: {x1,y1,z1} {x2,y2,z2} {x3,y3,z3} {x4,y4,z4} ... {xn, yn, zn}
+
+Coordinates:
+
+{Coordinates_templ}
