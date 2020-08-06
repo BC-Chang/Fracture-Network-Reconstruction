@@ -13,7 +13,7 @@ equation(optional): bool
     Set the output plane format:
         If True, return the coefficients (a,b,c,d) of the plane
         If False (Default) return 1 point and 1 normal vector
-        
+
 Outputs:
 -----------------------------------------------------------------------------
 a,b,c,d: float
@@ -28,19 +28,21 @@ point, normal: array
 from getPCA import *
 import numpy as np
 
-def best_fitting_plane(points,equation=False):
-    
-    w,v = getPCA(points)
-    
+
+def best_fitting_plane(points, equation=False):
+
+    w, v = get_PCA(points)
+
     # Normal of the plane is the last eigenvector
-    normal = v[:,2]
-    
+    normal = v[:, 2]
+
     # get a point on the plane
-    point = np.mean(points,axis=0)
+    point = np.mean(points, axis=0)
     
+
     if equation:
-        a,b,c = normal
-        d = -(np.dot(normal,point))
-        return a,b,c,d 
+        a, b, c = normal
+        d = -(np.dot(normal, point))
+        return a, b, c, d
     else:
-        return point,normal
+        return point, normal
