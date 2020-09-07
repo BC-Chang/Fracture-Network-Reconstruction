@@ -16,25 +16,28 @@ from getPCA import *
 from best_fitting_plane import *
 from coordTrans import *
 from scipy.spatial import ConvexHull
-from collections import OrderedDict
+from collections import OrderedDict 
 from xlrd.formula import num2strg
 from gof import *
 
 from mayavi import mlab
 
 imgGeom = 1  # 0 for 2D, 1 for 3D
-fin = open('./dfnRectInputTempl.dat', 'rt')  # Open template file for dfnWorks
-template = fin.read()
-fin.close()
+n = 2 # Initial guess for number of fractures
+gg = 0.80 # Convergence criterion for adjusted r-squared gof
+ggtest = 0 # Initial convergence
+#fin = open('./dfnRectInputTempl.dat', 'rt')  # Open template file for dfnWorks
+##template = fin.read()
+#fin.close()
 
-fin = open('user_specified_rect_coord.dat', 'wt')  # Input file for dfnWorks
+#fin = open('user_specified_rect_coord.dat', 'wt')  # Input file for dfnWorks
 
 # Domain size
-nx = 100
+nx = 400
 ny = 100
-nz = 100
+nz = 450
 
-im = io.imread('./input/TestMancos.tif')
+im = io.imread('./input/Segmented_SubSample1_small.tif')
 #im = np.zeros([100, 100, 100])
 #im[:, 49:52, :] = 255
 #im[:, :, 49:52] = 255
@@ -74,11 +77,13 @@ t0 = time.time()
 # labels = clustering.predict(result)
 
 clustering = mixture.BayesianGaussianMixture(
-    n_components=3, covariance_type='full', weight_concentration_prior=1e-2,
+    n_components=n, covariance_type='full', weight_concentration_prior=1e-2,
     weight_concentration_prior_type='dirichlet_process',
     mean_precision_prior=1e-2, covariance_prior=1e0 * np.eye(3),
     init_params="random", max_iter=100, random_state=2).fit(result)
 labels = clustering.predict(result)
+    
+    
 
 # clustering = mixture.BayesianGaussianMixture(
 #   n_components=3, covariance_type='full', weight_concentration_prior=1e+2,
@@ -86,6 +91,7 @@ labels = clustering.predict(result)
 #    mean_precision_prior=1e-2, covariance_prior=1e0 * np.eye(3),
 #    init_params="kmeans", max_iter=300, random_state=2).fit(result)
 # labels = clustering.predict(result)
+    
 
 t1 = time.time()
 print("Time to find clusters = %f sec" %(t1-t0))
@@ -97,24 +103,27 @@ data = np.append(result, labels, axis=1)
 X, Y = np.meshgrid(np.linspace(0, 100, 20), np.linspace(0, 100, 20))
 
 numfrac = max(labels)+1
-template = template.replace('{nEllipses_templ}', str(numfrac[0]))
-template = template.replace('{nNodes_templ}', str(4))
+#template = template.replace('{nEllipses_templ}', str(numfrac[0]))
+#template = template.replace('{nNodes_templ}', str(4))
 point = []
 normal = []
 polyVert = []
 mlab.figure(bgcolor=(1,1,1), size=(1200,1200))
 mlab.points3d(x, y, z)
 mlab.figure(bgcolor=(1,1,1), size=(1200,1200))
-pltcolor = ((1, 0, 0), (0, 1, 0), (0, 0 ,1))
+pltcolor = ((1, 0, 0), (0, 1, 0), (0, 0 ,1), (0.5, 0.5, 0.5))
 
 for i in range(numfrac[0]):
+    verticalFracture = False
     tempdata = data[data[:, 3] == i]
     tempdata = tempdata[:, :3]
 
     temppoint, tempnormal = best_fitting_plane(tempdata, equation=False)
     # a,b,c,d = best_fitting_plane(tempdata,equation=True)
-
-    if tempnormal[0] == 0:
+    
+    # Tests if fracture is vertical
+    if tempnormal[0] == 0: 
+        verticalFracture = True
         tempnormal[0] = 1e-20
 
     d = -np.dot(temppoint, tempnormal.T)
@@ -122,8 +131,8 @@ for i in range(numfrac[0]):
     ZPred = (-tempnormal[2]*tempdata[:,2] - tempnormal[1]*tempdata[:,1] - d)/tempnormal[0]
     
     # Goodness of Fit
-    r2, adjr2 = rsquared(tempdata[:,0], ZPred, len(tempdata[:,0]), 3)
-    RMSE = rmse(tempdata[:,0], ZPred)
+    r2, adjr2 = rsquared(tempdata[:,0], ZPred, len(tempdata[:,0]), 3, verticalFracture)
+    RMSE = rmse(tempdata[:,0], ZPred, verticalFracture)
     print("-----------------------------")
     print("R-squared of cluster %d: %f" % (i+1, r2))
     print("Adjusted R-squared of cluster %d: %f" %(i+1, adjr2))
@@ -153,12 +162,12 @@ for i in range(numfrac[0]):
     vertices = (vertices-nx/2)/nx
     vertices = np.around(vertices, decimals=1)
     
-    j = 0
-    while j < len(vertices):
-        template = template.replace('{Coordinates_templ}', ' {'+str(vertices[j])+',' + str(
-            vertices[j+1])+','+str(vertices[j+2])+'} {Coordinates_templ}')
-        j += 3
-    template = template.replace('{Coordinates_templ}', "\n{Coordinates_templ}")
+    # j = 0
+    # while j < len(vertices):
+    #     template = template.replace('{Coordinates_templ}', ' {'+str(vertices[j])+',' + str(
+    #         vertices[j+1])+','+str(vertices[j+2])+'} {Coordinates_templ}')
+    #     j += 3
+    # template = template.replace('{Coordinates_templ}', "\n{Coordinates_templ}")
     #polyVert = np.append(polyVert,vertices,axis=0)
     #normal = np.array(normal).reshape(numfrac[0],3)
     
@@ -168,8 +177,8 @@ for i in range(numfrac[0]):
 
 mlab.show()
 
-template = template.replace('{Coordinates_templ}', "")
+#template = template.replace('{Coordinates_templ}', "")
 
 
-fin.write(template)
-fin.close()
+#fin.write(template)
+#fin.close()
