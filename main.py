@@ -23,7 +23,7 @@ from gof import *
 from mayavi import mlab
 
 imgGeom = 1  # 0 for 2D, 1 for 3D
-n = 2 # Initial guess for number of fractures
+n = 5 # Initial guess for number of fractures
 gg = 0.80 # Convergence criterion for adjusted r-squared gof
 ggtest = 0 # Initial convergence
 #fin = open('./dfnRectInputTempl.dat', 'rt')  # Open template file for dfnWorks
@@ -33,11 +33,11 @@ ggtest = 0 # Initial convergence
 #fin = open('user_specified_rect_coord.dat', 'wt')  # Input file for dfnWorks
 
 # Domain size
-nx = 400
+nx = 100
 ny = 100
-nz = 450
+nz = 100
 
-im = io.imread('./input/Segmented_SubSample1_small.tif')
+im = io.imread('./input/TestMancos.tif')
 #im = np.zeros([100, 100, 100])
 #im[:, 49:52, :] = 255
 #im[:, :, 49:52] = 255
@@ -110,6 +110,7 @@ normal = []
 polyVert = []
 mlab.figure(bgcolor=(1,1,1), size=(1200,1200))
 mlab.points3d(x, y, z)
+
 mlab.figure(bgcolor=(1,1,1), size=(1200,1200))
 pltcolor = ((1, 0, 0), (0, 1, 0), (0, 0 ,1), (0.5, 0.5, 0.5))
 
